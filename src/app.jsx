@@ -13,19 +13,23 @@ class App extends Component {
   };
 
   handleIncrement = habit => {
-    console.log(`handleIncrement ${habit.name}`);
-    const habits = [...this.state.habits];
-    const index = habits.indexOf(habit);
-    habits[index].count++;
+    const habits = this.state.habits.map(item => {
+      if (item.id === habit.id) {
+        return { ...habit, count: habit.count + 1 };
+      }
+      return item;
+    });
     this.setState({ habits });
   };
 
   handleDecrement = habit => {
-    console.log(`handleDecrement ${habit.name}`);
-    const habits = [...this.state.habits];
-    const index = habits.indexOf(habit);
-    const result = habits[index].count - 1;
-    habits[index].count = result < 0 ? 0 : result;
+    const habits = this.state.habits.map(item => {
+      if (item.id === habit.id) {
+        const result = habit.count - 1;
+        return { ...habit, count: result < 0 ? 0 : result };
+      }
+      return item;
+    });
     this.setState({ habits });
   };
 
@@ -40,17 +44,14 @@ class App extends Component {
 
   handleReset = () => {
     const habits = this.state.habits.map(item => {
-      return item.count === 0 ? { ...item } : { ...item, count: 0 };
+      return item.count === 0 ? item : { ...item, count: 0 };
     });
     this.setState({ habits });
   };
 
-  handleAddHabit = event => {
-    event.preventDefault();
-    const name = event.target[0].value;
+  handleAddHabit = name => {
     const habits = [...this.state.habits];
     habits.push({ id: Date.now(), name, count: 0 });
-    event.target[0].value = '';
     this.setState({ habits });
   };
 
@@ -58,10 +59,7 @@ class App extends Component {
     return (
       <>
         <Navbar
-          totalCount={this.state.habits.reduce(
-            (prev, curr) => prev + curr.count,
-            0
-          )}
+          totalCount={this.state.habits.filter(habit => habit.count > 0).length}
         />
         <Habits
           habits={this.state.habits}
